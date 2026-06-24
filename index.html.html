@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PropVista</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f6f2;--bg2:#fff;--bg3:#f0ede6;
+  --text:#1a1a18;--text2:#5a5a55;--text3:#8a8a82;
+  --border:#e2e0d8;--border2:#ccc9be;
+  --purple:#6c5ce7;--purple-l:#ede9fe;--purple-d:#4c3dbf;
+  --teal:#00b894;--teal-l:#d4f5eb;--teal-d:#007a65;
+  --coral:#e17055;--coral-l:#fde8e0;--coral-d:#b84d30;
+  --amber:#f0a500;--amber-l:#fef3d0;--amber-d:#b87a00;
+  --green:#27ae60;--green-l:#d4f5df;
+  --red:#e74c3c;--red-l:#fde8e6;
+  --shadow:0 2px 12px rgba(0,0,0,.08);
+  --radius:10px;--radius-sm:6px;
+  font-family:'Segoe UI',system-ui,sans-serif;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#18181a;--bg2:#232327;--bg3:#2c2c30;
+  --text:#f0f0ec;--text2:#b0b0a8;--text3:#787870;
+  --border:#3a3a3e;--border2:#4a4a50;
+  --purple-l:#2d2850;--teal-l:#0d3028;--coral-l:#3a2018;--amber-l:#302008;--green-l:#0d2818;--red-l:#2a1014;
+}}
+body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+button{cursor:pointer;border:none;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;transition:all .15s}
+input,select,textarea{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;font-family:inherit;background:var(--bg2);color:var(--text);width:100%;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-l)}
+textarea{resize:vertical;min-height:80px}
+label{font-size:12px;font-weight:500;color:var(--text2);display:block;margin-bottom:4px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.badge-purple{background:var(--purple-l);color:var(--purple-d)}
+.badge-teal{background:var(--teal-l);color:var(--teal-d)}
+.badge-coral{background:var(--coral-l);color:var(--coral-d)}
+.badge-green{background:var(--green-l);color:#1a7a45}
+.badge-amber{background:var(--amber-l);color:var(--amber-d)}
+.badge-red{background:var(--red-l);color:#a02020}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.btn{padding:8px 18px;font-weight:500;color:#fff}
+.btn-primary{background:var(--purple);}.btn-primary:hover{background:var(--purple-d)}
+.btn-teal{background:var(--teal);}.btn-teal:hover{background:var(--teal-d)}
+.btn-coral{background:var(--coral);}.btn-coral:hover{background:var(--coral-d)}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border)}.btn-ghost:hover{border-color:var(--border2);background:var(--bg3)}
+.btn-danger{background:var(--red);}.btn-danger:hover{background:#c0392b}
+.btn-sm{padding:5px 12px;font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center}
+.stat-num{font-size:28px;font-weight:700;line-height:1}
+.stat-label{font-size:12px;color:var(--text3);margin-top:4px}
+.tag{display:inline-block;background:var(--bg3);color:var(--text2);padding:2px 8px;border-radius:4px;font-size:11px;margin:2px}
+/* Nav */
+#app{display:flex;flex-direction:column;min-height:100vh}
+.topnav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100}
+.logo{font-size:16px;font-weight:700;letter-spacing:-.02em;color:var(--purple)}
+.logo span{color:var(--text)}
+.nav-user{display:flex;align-items:center;gap:10px;font-size:13px}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.sidebar{width:200px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);min-height:calc(100vh - 52px);padding:12px 0}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:13px;color:var(--text2);cursor:pointer;border-radius:0;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--purple-l);color:var(--purple);border-left-color:var(--purple);font-weight:500}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.main-layout{display:flex;flex:1}
+.page{flex:1;padding:20px;max-width:900px}
+
+/* Login */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);padding:20px}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:36px;width:100%;max-width:400px;box-shadow:var(--shadow)}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo h1{font-size:22px;font-weight:800;color:var(--purple)}
+.login-logo p{font-size:13px;color:var(--text3);margin-top:4px}
+.demo-pills{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.demo-pill{padding:5px 12px;border-radius:99px;font-size:12px;border:1.5px solid var(--border);cursor:pointer;background:var(--bg3);color:var(--text2);transition:all .15s}
+.demo-pill:hover,.demo-pill.selected{border-color:var(--purple);background:var(--purple-l);color:var(--purple)}
+
+/* Property card */
+.prop-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s}
+.prop-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.prop-img{height:140px;display:flex;align-items:center;justify-content:center;font-size:40px}
+.prop-body{padding:14px}
+.prop-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.prop-loc{font-size:12px;color:var(--text3);margin-bottom:8px}
+.prop-price{font-size:18px;font-weight:700;color:var(--purple);margin-bottom:8px}
+.prop-meta{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Form */
+.form-row{margin-bottom:14px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.section-title{font-size:15px;font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* Table */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);padding:8px 12px;border-bottom:2px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+
+/* Chart bar */
+.bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-label{width:90px;font-size:12px;color:var(--text2);text-align:right;flex-shrink:0}
+.bar-track{flex:1;height:18px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.bar-val{font-size:12px;color:var(--text2);width:40px;flex-shrink:0}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--bg2);border-radius:14px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.2)}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:18px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:#1a1a18;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:300;box-shadow:0 4px 20px rgba(0,0,0,.3);animation:toastIn .2s ease}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-state div{font-size:36px;margin-bottom:12px}
+.empty-state p{font-size:13px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+select option{background:var(--bg2);color:var(--text)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ==================== DATA STORE ====================
+const DB = {
+  users:[
+    {id:1,name:'Alex Kumar',email:'admin@propvista.com',password:'admin123',role:'admin',avatar:'👨‍💼',status:'active',joined:'2024-01-15'},
+    {id:2,name:'Ravi Sharma',email:'vendor@propvista.com',password:'vendor123',role:'vendor',avatar:'🏗️',status:'active',joined:'2024-02-10',company:'Sharma Builders'},
+    {id:3,name:'Priya Singh',email:'user@propvista.com',password:'user123',role:'user',avatar:'👩',status:'active',joined:'2024-03-05',saved:[]}
+  ],
+  properties:[
+    {id:1,title:'Green Valley Plot',location:'Hyderabad, Telangana',price:4500000,area:1200,type:'Residential Plot',facing:'East',amenities:['Gated Community','24/7 Water','Park'],status:'available',vendorId:2,views:142,leads:12,emoji:'🏡',desc:'Premium residential plot in a gated community with modern amenities and excellent connectivity.',posted:'2024-04-01'},
+    {id:2,title:'Commercial Site B12',location:'Pune, Maharashtra',price:12000000,area:3000,type:'Commercial',facing:'North',amenities:['Main Road Access','Power Backup','Drainage'],status:'available',vendorId:2,views:89,leads:7,emoji:'🏢',desc:'Prime commercial plot on a main road, ideal for retail or office complex development.',posted:'2024-04-10'},
+    {id:3,title:'Hill View Land Parcel',location:'Bangalore, Karnataka',price:6800000,area:2400,type:'Agricultural',facing:'West',amenities:['Farm Road','Bore Well','Fencing'],status:'sold',vendorId:2,views:210,leads:21,emoji:'🌄',desc:'Scenic agricultural land parcel with a bore well and fencing, perfect for farmhouse projects.',posted:'2024-03-20'},
+    {id:4,title:'Tech Park Adjacent Plot',location:'Chennai, Tamil Nadu',price:9200000,area:1800,type:'Commercial',facing:'South',amenities:['Metro Access','Security','Power'],status:'available',vendorId:2,views:65,leads:5,emoji:'🏙️',desc:'Strategic commercial plot adjacent to an IT tech park, high rental yield potential.',posted:'2024-05-01'}
+  ],
+  nextPropId:5,
+  pendingUsers:[
+    {id:4,name:'Sunita Rao',email:'sunita@mail.com',role:'vendor',requested:'2024-06-01',company:'Rao Properties'}
+  ]
+};
+
+let currentUser=null;
+let currentPage='login';
+let modalData=null;
+let toastTimer=null;
+
+function fmt(n){return'₹'+Intl.NumberFormat('en-IN').format(n)}
+function fmtArea(a){return a.toLocaleString()+' sq.ft'}
+
+function toast(msg,color='var(--teal)'){
+  let el=document.querySelector('.toast');
+  if(el)el.remove();
+  if(toastTimer)clearTimeout(toastTimer);
+  el=document.createElement('div');
+  el.className='toast';
+  el.style.background=color;
+  el.textContent=msg;
+  document.body.appendChild(el);
+  toastTimer=setTimeout(()=>el&&el.remove(),2500);
+}
+
+function login(email,pass){
+  const u=DB.users.find(u=>u.email===email&&u.password===pass);
+  if(!u)return false;
+  currentUser=u;
+  currentPage=u.role==='admin'?'dashboard':u.role==='vendor'?'my-listings':'browse';
+  render();
+  return true;
+}
+function logout(){currentUser=null;currentPage='login';render();}
+
+function navigate(page){currentPage=page;render();}
+
+function openModal(data){modalData=data;render();}
+function closeModal(){modalData=null;render();}
+
+// ==================== RENDER ENGINE ====================
+function render(){
+  const app=document.getElementById('app');
+  if(!currentUser){app.innerHTML=renderLogin();bindLogin();return;}
+  app.innerHTML=`
+    <div id="app-inner">
+      ${renderNav()}
+      <div class="main-layout">
+        ${renderSidebar()}
+        <div class="page">${renderPage()}</div>
+      </div>
+    </div>
+    ${modalData?renderModal():''}
+  `;
+  bindAll();
+}
+
+function renderLogin(){
+  return`<div class="login-wrap"><div class="login-card">
+    <div class="login-logo"><h1>PropVista</h1><p>Premium land &amp; plot marketplace</p></div>
+    <div style="margin-bottom:14px">
+      <label>Demo accounts</label>
+      <div class="demo-pills">
+        <div class="demo-pill" data-email="admin@propvista.com" data-pass="admin123">👨‍💼 Admin</div>
+        <div class="demo-pill" data-email="vendor@propvista.com" data-pass="vendor123">🏗️ Vendor</div>
+        <div class="demo-pill" data-email="user@propvista.com" data-pass="user123">👩 User</div>
+      </div>
+    </div>
+    <div class="form-row"><label>Email</label><input id="l-email" type="email" placeholder="Enter email"/></div>
+    <div class="form-row"><label>Password</label><input id="l-pass" type="password" placeholder="Enter password"/></div>
+    <div id="l-err" style="color:var(--red);font-size:12px;margin-bottom:10px;display:none">Invalid credentials</div>
+    <button class="btn btn-primary" style="width:100%" id="l-btn">Sign in</button>
+  </div></div>`;
+}
+
+function bindLogin(){
+  document.querySelectorAll('.demo-pill').forEach(p=>{
+    p.onclick=()=>{
+      document.querySelectorAll('.demo-pill').forEach(x=>x.classList.remove('selected'));
+      p.classList.add('selected');
+      document.getElementById('l-email').value=p.dataset.email;
+      document.getElementById('l-pass').value=p.dataset.pass;
+    };
+  });
+  document.getElementById('l-btn').onclick=()=>{
+    const e=document.getElementById('l-email').value;
+    const p=document.getElementById('l-pass').value;
+    const err=document.getElementById('l-err');
+    if(!login(e,p)){err.style.display='block';}else{err.style.display='none';}
+  };
+  document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('l-btn').click();});
+}
+
+function renderNav(){
+  const roleColor=currentUser.role==='admin'?'var(--purple)':currentUser.role==='vendor'?'var(--teal)':'var(--coral)';
+  const roleBadge=currentUser.role==='admin'?'badge-purple':currentUser.role==='vendor'?'badge-teal':'badge-coral';
+  return`<nav class="topnav">
+    <div class="logo">Prop<span>Vista</span></div>
+    <div class="nav-user">
+      <div class="avatar" style="background:${roleColor}">${currentUser.avatar}</div>
+      <div>
+        <div style="font-weight:600;line-height:1.2">${currentUser.name}</div>
+        <span class="badge ${roleBadge}">${currentUser.role}</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
+    </div>
+  </nav>`;
+}
+
+function renderSidebar(){
+  const items={
+    admin:[
+      {id:'dashboard',icon:'📊',label:'Dashboard'},
+      {id:'all-users',icon:'👥',label:'Manage users'},
+      {id:'all-listings',icon:'🏘️',label:'All listings'},
+      {id:'analytics',icon:'📈',label:'Analytics'},
+      {id:'profile',icon:'👤',label:'My profile'}
+    ],
+    vendor:[
+      {id:'my-listings',icon:'🏘️',label:'My listings'},
+      {id:'add-listing',icon:'➕',label:'Add listing'},
+      {id:'analytics',icon:'📈',label:'Analytics'},
+      {id:'profile',icon:'👤',label:'My profile'}
+    ],
+    user:[
+      {id:'browse',icon:'🔍',label:'Browse plots'},
+      {id:'saved',icon:'❤️',label:'Saved'},
+      {id:'profile',icon:'👤',label:'My profile'}
+    ]
+  };
+  const navItems=items[currentUser.role]||[];
+  return`<aside class="sidebar">${navItems.map(item=>`
+    <div class="nav-item${currentPage===item.id?' active':''}" onclick="navigate('${item.id}')">
+      <span class="nav-icon">${item.icon}</span>${item.label}
+    </div>`).join('')}</aside>`;
+}
+
+function renderPage(){
+  switch(currentPage){
+    case'dashboard':return renderAdminDashboard();
+    case'all-users':return renderAllUsers();
+    case'all-listings':return renderAllListings();
+    case'analytics':return renderAnalytics();
+    case'profile':return renderProfile();
+    case'my-listings':return renderVendorListings();
+    case'add-listing':return renderAddListing();
+    case'browse':return renderBrowse();
+    case'saved':return renderSaved();
+    default:return`<div class="empty-state"><div>🚧</div><p>Page not found</p></div>`;
+  }
+}
+
+// ==================== ADMIN PAGES ====================
+function renderAdminDashboard(){
+  const props=DB.properties;
+  const users=DB.users;
+  const pending=DB.pendingUsers;
+  return`<div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Admin dashboard</h2>
+    <p style="color:var(--text3);font-size:13px;margin-bottom:18px">Platform overview</p>
+    <div class="grid3" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-num" style="color:var(--purple)">${users.length}</div><div class="stat-label">Total users</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--teal)">${props.length}</div><div class="stat-label">Listings</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--coral)">${pending.length}</div><div class="stat-label">Pending approvals</div></div>
+    </div>
+    ${pending.length?`<div class="card" style="margin-bottom:16px;border-color:var(--amber);background:var(--amber-l)">
+      <div class="section-title" style="border-color:var(--amber)">⏳ Pending approvals</div>
+      ${pending.map(u=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div><div style="font-weight:500">${u.name}</div><div style="font-size:12px;color:var(--text3)">${u.email} · ${u.role} · ${u.company||''}</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-teal btn-sm" onclick="approveUser(${u.id})">Approve</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectUser(${u.id})">Reject</button>
+        </div>
+      </div>`).join('')}
+    </div>`:''}
+    <div class="card">
+      <div class="section-title">Recent listings</div>
+      ${props.slice(0,3).map(p=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:24px">${p.emoji}</div>
+        <div style="flex:1"><div style="font-weight:500;font-size:13px">${p.title}</div><div style="font-size:12px;color:var(--text3)">${p.location}</div></div>
+        <div><span class="badge ${p.status==='available'?'badge-green':'badge-red'}">${p.status}</span></div>
+        <div style="font-weight:600;color:var(--purple)">${fmt(p.price)}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderAllUsers(){
+  return`<div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Manage users</h2>
+    <p style="color:var(--text3);font-size:13px;margin-bottom:18px">Approve, view, or deactivate user accounts</p>
+    ${DB.pendingUsers.length?`<div class="card" style="margin-bottom:16px">
+      <div class="section-title">Pending registrations</div>
+      <table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Requested</th><th>Action</th></tr></thead><tbody>
+        ${DB.pendingUsers.map(u=>`<tr>
+          <td><b>${u.name}</b></td><td>${u.email}</td>
+          <td><span class="badge badge-amber">${u.role}</span></td>
+          <td>${u.requested}</td>
+          <td style="display:flex;gap:6px">
+            <button class="btn btn-teal btn-sm" onclick="approveUser(${u.id})">Approve</button>
+            <button class="btn btn-danger btn-sm" onclick="rejectUser(${u.id})">Reject</button>
+          </td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>`:''}
+    <div class="card">
+      <div class="section-title">All active users</div>
+      <table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th></tr></thead><tbody>
+        ${DB.users.map(u=>`<tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="width:26px;height:26px;font-size:11px;background:${u.role==='admin'?'var(--purple)':u.role==='vendor'?'var(--teal)':'var(--coral)'}">${u.avatar}</div>${u.name}</div></td>
+          <td style="color:var(--text2)">${u.email}</td>
+          <td><span class="badge ${u.role==='admin'?'badge-purple':u.role==='vendor'?'badge-teal':'badge-coral'}">${u.role}</span></td>
+          <td><span class="badge badge-green">${u.status}</span></td>
+          <td style="color:var(--text3)">${u.joined}</td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>
+  </div>`;
+}
+
+function renderAllListings(){
+  return`<div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">All listings</h2>
+    <p style="color:var(--text3);font-size:13px;margin-bottom:18px">Platform-wide property inventory</p>
+    <div class="card">
+      <table><thead><tr><th>Property</th><th>Location</th><th>Type</th><th>Price</th><th>Status</th><th>Views</th></tr></thead><tbody>
+        ${DB.properties.map(p=>`<tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><span style="font-size:20px">${p.emoji}</span><div><div style="font-weight:500">${p.title}</div><div style="font-size:11px;color:var(--text3)">${fmtArea(p.area)}</div></div></div></td>
+          <td style="color:var(--text2);font-size:12px">${p.location}</td>
+          <td><span class="tag">${p.type}</span></td>
+          <td style="font-weight:600;color:var(--purple)">${fmt(p.price)}</td>
+          <td><span class="badge ${p.status==='available'?'badge-green':'badge-red'}">${p.status}</span></td>
+          <td style="color:var(--text3)">${p.views}</td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>
+  </div>`;
+}
+
+// ==================== VENDOR PAGES ====================
+function renderVendorListings(){
+  const myProps=DB.properties.filter(p=>p.vendorId===currentUser.id);
+  return`<div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div><h2 style="font-size:18px;font-weight:700">My listings</h2><p style="color:var(--text3);font-size:13px">${myProps.length} properties posted</p></div>
+      <button class="btn btn-teal" onclick="navigate('add-listing')">+ Add listing</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
+      ${myProps.map(p=>`<div class="prop-card">
+        <div class="prop-img" style="background:${p.status==='available'?'var(--teal-l)':'var(--bg3)'}">${p.emoji}</div>
+        <div class="prop-body">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px">
+            <div class="prop-title">${p.title}</div>
+            <span class="badge ${p.status==='available'?'badge-green':'badge-red'}">${p.status}</span>
+          </div>
+          <div class="prop-loc">📍 ${p.location}</div>
+          <div class="prop-price">${fmt(p.price)}</div>
+          <div class="prop-meta" style="margin-bottom:10px">
+            <span class="tag">${fmtArea(p.area)}</span>
+            <span class="tag">${p.type}</span>
+            <span class="tag">👁️ ${p.views}</span>
+            <span class="tag">📞 ${p.leads} leads</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="openEditModal(${p.id})" style="flex:1">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteProp(${p.id})" style="flex:1">Delete</button>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+    ${myProps.length===0?`<div class="empty-state"><div>🏗️</div><p>No listings yet. Add your first property!</p></div>`:''}
+  </div>`;
+}
+
+function renderAddListing(){
+  return`<div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Add new listing</h2>
+    <p style="color:var(--text3);font-size:13px;margin-bottom:18px">Fill in the property details below</p>
+    <div class="card">
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-row"><label>Property title</label><input id="p-title" placeholder="e.g. Green Valley Plot"/></div>
+        <div class="form-row"><label>Location</label><input id="p-loc" placeholder="City, State"/></div>
+      </div>
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-row"><label>Price (₹)</label><input id="p-price" type="number" placeholder="e.g. 4500000"/></div>
+        <div class="form-row"><label>Area (sq.ft)</label><input id="p-area" type="number" placeholder="e.g. 1200"/></div>
+      </div>
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-row"><label>Property type</label>
+          <select id="p-type"><option>Residential Plot</option><option>Commercial</option><option>Agricultural</option><option>Industrial</option></select>
+        </div>
+        <div class="form-row"><label>Facing</label>
+          <select id="p-facing"><option>East</option><option>West</option><option>North</option><option>South</option></select>
+        </div>
+      </div>
+      <div class="form-row"><label>Description</label><textarea id="p-desc" placeholder="Describe the property, nearby landmarks, advantages..."></textarea></div>
+      <div class="form-row"><label>Amenities (comma separated)</label><input id="p-amen" placeholder="e.g. Gated Community, 24/7 Water, Park"/></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn btn-teal" onclick="addListing()">Publish listing</button>
+        <button class="btn btn-ghost" onclick="navigate('my-listings')">Cancel</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ==================== USER PAGES ====================
+function renderBrowse(){
+  const q=(document.getElementById('search-q')||{value:''}).value||window._searchQ||'';
+  const filter=window._typeFilter||'All';
+  const avail=window._availOnly===undefined?false:window._availOnly;
+  let props=DB.properties.filter(p=>p.status==='available'||!avail);
+  if(q)props=props.filter(p=>p.title.toLowerCase().includes(q.toLowerCase())||p.location.toLowerCase().includes(q.toLowerCase()));
+  if(filter!=='All')props=props.filter(p=>p.type===filter);
+  const saved=(currentUser.saved||[]);
+  return`<div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Browse plots &amp; sites</h2>
+    <p style="color:var(--text3);font-size:13px;margin-bottom:14px">${props.length} properties found</p>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <input id="search-q" value="${q}" placeholder="Search by name or location..." style="flex:1;min-width:160px" oninput="window._searchQ=this.value;renderInPlace()"/>
+      <select onchange="window._typeFilter=this.value;renderInPlace()" style="width:160px">
+        ${['All','Residential Plot','Commercial','Agricultural','Industrial'].map(t=>`<option${filter===t?' selected':''}>${t}</option>`).join('')}
+      </select>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);white-space:nowrap;margin:0">
+        <input type="checkbox" ${avail?'checked':''} onchange="window._availOnly=this.checked;renderInPlace()" style="width:auto"/>
+        Available only
+      </label>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
+      ${props.map(p=>`<div class="prop-card" onclick="openPropDetail(${p.id})" style="cursor:pointer">
+        <div class="prop-img" style="background:${p.status==='available'?'var(--teal-l)':'var(--bg3)'}">${p.emoji}</div>
+        <div class="prop-body">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px">
+            <div class="prop-title">${p.title}</div>
+            <button style="background:none;border:none;font-size:18px;cursor:pointer;padding:0" onclick="event.stopPropagation();toggleSave(${p.id})">${saved.includes(p.id)?'❤️':'🤍'}</button>
+          </div>
+          <div class="prop-loc">📍 ${p.location}</div>
+          <div class="prop-price">${fmt(p.price)}</div>
+          <div class="prop-meta">
+            <span class="tag">${fmtArea(p.area)}</span>
+            <span class="tag">${p.type}</span>
+            <span class="badge ${p.status==='available'?'badge-green':'badge-red'}">${p.status}</span>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+    ${props.length===0?`<div class="empty-state"><div>🔍</div><p>No properties match your filters</p></div>`:''}
+  </div>`;
+}
+
+function renderSaved(){
+  const savedIds=currentUser.saved||[];
+  const props=DB.properties.filter(p=>savedIds.includes(p.id));
+  return`<div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Saved plots</h2>
+    <p style="color:var(--text3);font-size:13px;margin-bottom:18px">${props.length} saved properties</p>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
+      ${props.map(p=>`<div class="prop-card" onclick="openPropDetail(${p.id})" style="cursor:pointer">
+        <div class="prop-img" style="background:var(--teal-l)">${p.emoji}</div>
+        <div class="prop-body">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px">
+            <div class="prop-title">${p.title}</div>
+            <button style="background:none;border:none;font-size:18px;cursor:pointer;padding:0" onclick="event.stopPropagation();toggleSave(${p.id})">❤️</button>
+          </div>
+          <div class="prop-loc">📍 ${p.location}</div>
+          <div class="prop-price">${fmt(p.price)}</div>
+          <div class="prop-meta"><span class="tag">${fmtArea(p.area)}</span><span class="tag">${p.type}</span></div>
+        </div>
+      </div>`).join('')}
+    </div>
+    ${props.length===0?`<div class="empty-state"><div>❤️</div><p>You haven't saved any properties yet. Browse and tap the heart icon!</p></div>`:''}
+  </div>`;
+}
+
+// ==================== SHARED PAGES ====================
+function renderAnalytics(){
+  const props=currentUser.role==='vendor'?DB.properties.filter(p=>p.vendorId===currentUser.id):DB.properties;
+  const totalViews=props.reduce((a,p)=>a+p.views,0);
+  const totalLeads=props.reduce((a,p)=>a+p.leads,0);
+  const available=props.filter(p=>p.status==='available').length;
+  const maxViews=Math.max(...props.map(p=>p.views),1);
+  return`<div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Analytics</h2>
+    <p style="color:var(--text3);font-size:13px;margin-bottom:18px">${currentUser.role==='vendor'?'Your listings performance':'Platform-wide analytics'}</p>
+    <div class="grid3" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-num" style="color:var(--teal)">${totalViews}</div><div class="stat-label">Total views</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--coral)">${totalLeads}</div><div class="stat-label">Leads generated</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--green)">${available}</div><div class="stat-label">Available</div></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">Views by property</div>
+      ${props.map(p=>`<div class="bar-wrap">
+        <div class="bar-label">${p.title.substring(0,12)}${p.title.length>12?'…':''}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(p.views/maxViews*100)}%;background:var(--purple)"></div></div>
+        <div class="bar-val">${p.views}</div>
+      </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="section-title">Leads by property</div>
+      ${props.map(p=>`<div class="bar-wrap">
+        <div class="bar-label">${p.title.substring(0,12)}${p.title.length>12?'…':''}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(p.leads/Math.max(...props.map(x=>x.leads),1)*100)}%;background:var(--coral)"></div></div>
+        <div class="bar-val">${p.leads}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderProfile(){
+  const u=currentUser;
+  return`<div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:18px">My profile</h2>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div class="avatar" style="width:56px;height:56px;font-size:24px;background:${u.role==='admin'?'var(--purple)':u.role==='vendor'?'var(--teal)':'var(--coral)'}">${u.avatar}</div>
+        <div>
+          <div style="font-size:16px;font-weight:700">${u.name}</div>
+          <div style="color:var(--text2);font-size:13px">${u.email}</div>
+          <span class="badge ${u.role==='admin'?'badge-purple':u.role==='vendor'?'badge-teal':'badge-coral'}" style="margin-top:4px">${u.role}</span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="form-row"><label>Full name</label><input id="pr-name" value="${u.name}"/></div>
+        <div class="form-row"><label>Email</label><input id="pr-email" value="${u.email}" type="email"/></div>
+      </div>
+      ${u.role==='vendor'?`<div class="form-row"><label>Company</label><input id="pr-company" value="${u.company||''}"/></div>`:''}
+      <div class="form-row"><label>New password (leave blank to keep current)</label><input id="pr-pass" type="password" placeholder="New password"/></div>
+      <button class="btn btn-primary" onclick="saveProfile()">Save changes</button>
+    </div>
+  </div>`;
+}
+
+// ==================== MODALS ====================
+function renderModal(){
+  if(modalData.type==='prop-detail'){
+    const p=DB.properties.find(x=>x.id===modalData.id);
+    if(!p)return'';
+    const saved=(currentUser.saved||[]).includes(p.id);
+    return`<div class="modal-backdrop" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">
+      <div style="font-size:48px;text-align:center;margin-bottom:12px">${p.emoji}</div>
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+        <div class="modal-title" style="margin:0">${p.title}</div>
+        <span class="badge ${p.status==='available'?'badge-green':'badge-red'}">${p.status}</span>
+      </div>
+      <div style="color:var(--text3);font-size:13px;margin-bottom:12px">📍 ${p.location}</div>
+      <div style="font-size:22px;font-weight:700;color:var(--purple);margin-bottom:14px">${fmt(p.price)}</div>
+      <div class="grid2" style="margin-bottom:14px">
+        <div class="stat-card"><div class="stat-num" style="color:var(--teal);font-size:20px">${fmtArea(p.area)}</div><div class="stat-label">Area</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--coral);font-size:20px">${p.facing}</div><div class="stat-label">Facing</div></div>
+      </div>
+      <div style="margin-bottom:12px"><div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">AMENITIES</div><div>${p.amenities.map(a=>`<span class="tag">${a}</span>`).join('')}</div></div>
+      <div style="margin-bottom:14px"><div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">DESCRIPTION</div><p style="font-size:13px;color:var(--text2);line-height:1.6">${p.desc}</p></div>
+      <div class="modal-footer">
+        ${currentUser.role==='user'?`<button class="btn btn-ghost" onclick="toggleSave(${p.id});closeModal()">${saved?'❤️ Saved':'🤍 Save'}</button>`:''}
+        <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+        ${currentUser.role==='user'&&p.status==='available'?`<button class="btn btn-primary" onclick="toast('📞 Lead sent! Vendor will contact you.','var(--teal)');closeModal()">Express interest</button>`:''}
+      </div>
+    </div></div>`;
+  }
+  if(modalData.type==='edit-prop'){
+    const p=DB.properties.find(x=>x.id===modalData.id);
+    if(!p)return'';
+    return`<div class="modal-backdrop" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-title">Edit listing</div>
+      <div class="form-row"><label>Title</label><input id="ep-title" value="${p.title}"/></div>
+      <div class="form-row"><label>Location</label><input id="ep-loc" value="${p.location}"/></div>
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-row"><label>Price (₹)</label><input id="ep-price" type="number" value="${p.price}"/></div>
+        <div class="form-row"><label>Area (sq.ft)</label><input id="ep-area" type="number" value="${p.area}"/></div>
+      </div>
+      <div class="form-row"><label>Status</label><select id="ep-status"><option${p.status==='available'?' selected':''}>available</option><option${p.status==='sold'?' selected':''}>sold</option></select></div>
+      <div class="form-row"><label>Description</label><textarea id="ep-desc">${p.desc}</textarea></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-teal" onclick="saveEdit(${p.id})">Save changes</button>
+      </div>
+    </div></div>`;
+  }
+  return'';
+}
+
+// ==================== ACTIONS ====================
+function approveUser(id){
+  const u=DB.pendingUsers.find(x=>x.id===id);
+  if(!u)return;
+  DB.users.push({...u,password:'vendor123',avatar:'🏗️',status:'active',saved:[]});
+  DB.pendingUsers=DB.pendingUsers.filter(x=>x.id!==id);
+  toast(`✅ ${u.name} approved!`,'var(--teal)');
+  render();
+}
+function rejectUser(id){
+  const u=DB.pendingUsers.find(x=>x.id===id);
+  DB.pendingUsers=DB.pendingUsers.filter(x=>x.id!==id);
+  toast(`Rejected ${u?u.name:'user'}`,'var(--coral)');
+  render();
+}
+function addListing(){
+  const title=document.getElementById('p-title').value.trim();
+  const loc=document.getElementById('p-loc').value.trim();
+  const price=parseInt(document.getElementById('p-price').value);
+  const area=parseInt(document.getElementById('p-area').value);
+  const type=document.getElementById('p-type').value;
+  const facing=document.getElementById('p-facing').value;
+  const desc=document.getElementById('p-desc').value.trim();
+  const amen=document.getElementById('p-amen').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!title||!loc||!price||!area){toast('Please fill all required fields','var(--red)');return;}
+  const emojis=['🏡','🏢','🌄','🏙️','🏘️','🌳'];
+  DB.properties.push({id:DB.nextPropId++,title,location:loc,price,area,type,facing,desc:desc||'A great property for sale.',amenities:amen.length?amen:['Basic amenities'],status:'available',vendorId:currentUser.id,views:0,leads:0,emoji:emojis[Math.floor(Math.random()*emojis.length)],posted:new Date().toISOString().split('T')[0]});
+  toast('✅ Listing published!','var(--teal)');
+  navigate('my-listings');
+}
+function deleteProp(id){
+  DB.properties=DB.properties.filter(p=>p.id!==id);
+  toast('Listing removed','var(--coral)');
+  render();
+}
+function openEditModal(id){openModal({type:'edit-prop',id});}
+function openPropDetail(id){
+  const p=DB.properties.find(x=>x.id===id);
+  if(p)p.views++;
+  openModal({type:'prop-detail',id});
+}
+function saveEdit(id){
+  const p=DB.properties.find(x=>x.id===id);
+  if(!p)return;
+  p.title=document.getElementById('ep-title').value||p.title;
+  p.location=document.getElementById('ep-loc').value||p.location;
+  p.price=parseInt(document.getElementById('ep-price').value)||p.price;
+  p.area=parseInt(document.getElementById('ep-area').value)||p.area;
+  p.status=document.getElementById('ep-status').value;
+  p.desc=document.getElementById('ep-desc').value||p.desc;
+  toast('✅ Listing updated!','var(--teal)');
+  closeModal();
+  render();
+}
+function toggleSave(id){
+  if(!currentUser.saved)currentUser.saved=[];
+  const idx=currentUser.saved.indexOf(id);
+  if(idx>-1){currentUser.saved.splice(idx,1);toast('Removed from saved');}
+  else{currentUser.saved.push(id);toast('❤️ Saved!','var(--coral)');}
+  if(currentPage==='browse'||currentPage==='saved')renderInPlace();
+}
+function saveProfile(){
+  currentUser.name=document.getElementById('pr-name').value||currentUser.name;
+  currentUser.email=document.getElementById('pr-email').value||currentUser.email;
+  if(currentUser.role==='vendor'&&document.getElementById('pr-company'))
+    currentUser.company=document.getElementById('pr-company').value||currentUser.company;
+  const np=document.getElementById('pr-pass').value;
+  if(np)currentUser.password=np;
+  toast('✅ Profile saved!','var(--teal)');
+  render();
+}
+function renderInPlace(){
+  const page=document.querySelector('.page');
+  if(page)page.innerHTML=renderPage();
+  bindAll();
+}
+function bindAll(){}
+
+window.logout=logout;
+window.navigate=navigate;
+window.approveUser=approveUser;
+window.rejectUser=rejectUser;
+window.addListing=addListing;
+window.deleteProp=deleteProp;
+window.openEditModal=openEditModal;
+window.openPropDetail=openPropDetail;
+window.saveEdit=saveEdit;
+window.toggleSave=toggleSave;
+window.saveProfile=saveProfile;
+window.closeModal=closeModal;
+window.renderInPlace=renderInPlace;
+window.openModal=openModal;
+
+render();
+</script>
+</body>
+</html>
